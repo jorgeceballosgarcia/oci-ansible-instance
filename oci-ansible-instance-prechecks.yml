@@ -1,0 +1,34 @@
+- name: Check pre-requisites
+  fail:
+    msg: "Environment variable {{item}} not set. Please declare an environment variable with an appropriate value for the sample to work."
+  when: item not in ansible_env
+  with_items:
+    - "COMPARTMENT_OCID"
+- block:
+  - name: Generate a Private Key
+    openssl_privatekey:
+      path: "server.key"
+      type: RSA
+      size: 2048
+  - name: Generate a Public Key
+    openssl_publickey:
+      path: "server.key.pub"
+      privatekey_path: "server.key"
+      format: OpenSSH
+  when: "'PUBLIC_SSH_KEY' not in ansible_env"
+
+- name: Search images on oci
+  block:
+  - name: List images
+    collections:
+      - oracle.oci
+    oci_compute_image_facts:
+    # required
+      compartment_id: "{{ instance_compartment }}"
+      #display_name: "{{instance_os_build_filter}}"
+      operating_system: "{{ instance_os }}"
+      operating_system_version: "8"
+    register: list_images
+  - name: debug
+    debug:
+      msg: "{{ list_images }}"

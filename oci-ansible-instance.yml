@@ -1,0 +1,15 @@
+- name: Launch a compute instance
+  hosts: localhost
+  gather_facts: true
+  collections:
+    - oracle.oci
+  tasks:
+
+  - name: Include vars
+    include_vars: oci-ansible-instance-vars.yml
+
+  - import_tasks: oci-ansible-instance-prechecks.yml
+
+  - name: Debug
+    ansible.builtin.debug:
+      msg: "{{ instance_hostname }}"
