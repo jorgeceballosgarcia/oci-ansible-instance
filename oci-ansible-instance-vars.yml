@@ -1,7 +1,7 @@
 instance_name: "oci-instance-ansible"
 instance_hostname: "{{ instance_name }}"
 
-instance_ad: "AD1"
+instance_ad: ""
 instance_compartment: "{{ lookup('env', 'COMPARTMENT_OCID') }}"
 #ocid1.compartment.oc1..aaaaaaaatw53h3inxmpseokpj7ld7atkusnsc6pu3qlw46drotkbhvgpattq
 instance_shape: "VM.Standard.E4.Flex"
@@ -21,15 +21,15 @@ SSH_port: "22"
 
 vcn_name: "{{ instance_name }}-vcn"
 vcn_cidr_block: "10.0.0.0/16"
-vcn_dns_label: "samplelcs"
+vcn_dns_label: "{{ instance_name }}"
 
-ig_name: "myinternetgatewayformytestvcn"
+nat_name: "{{ instance_name }}-nat-gateway"
 
 route_table_name: "{{ instance_name }}-route-table-private"
 # route all internet access to our Internet Gateway
 route_table_rules:
     - cidr_block: "{{ quad_zero_route }}"
-      network_entity_id: "{{ ig_id }}"
+      network_entity_id: "{{ ng_id }}"
 
 subnet_cidr: "10.0.0.0/24"
 subnet_name: "{{ instance_name }}-subnet-private"

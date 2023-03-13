@@ -10,6 +10,40 @@
 
   - import_tasks: oci-ansible-instance-prechecks.yml
 
-  - name: Debug
+  - import_tasks: oci-ansible-instance-network.yml
+
+  - name: Launch an instance
+    oci_compute_instance:
+      availability_domain: "{{ instance_ad }}"
+      compartment_id: "{{ instance_compartment }}"
+      name: "{{ instance_name }}"
+      image_id: "{{ instance_image_ocid }}"
+      shape: "{{ instance_shape }}"
+      shape_config:
+        ocpus: "{{ instance_ocpus }}"
+        memory_in_gbs: "{{ instance_memory_in_gbs }}"
+      agent_config:
+        is_management_disabled: no
+        is_monitoring_disabled: no
+        plugins_config:
+          - name: "Bastion"
+            desired_state: "ENABLED"
+      create_vnic_details:
+          assign_public_ip: no
+          subnet_id: "{{ instance_subnet_id }}"
+          display_name: "{{ instance_name }}"
+      metadata:
+          ssh_authorized_keys: "{{ SSH_AUTHORIZED_KEYS }}"
+    register: result
+
+  - set_fact:
+      instance_ocid: "{{ result.instance.id }}"
+
+  - set_fact:
+      instance_details: "{{ result }}"
+
+  - import_tasks: oci-ansible-instance-bastion.yml
+
+  - name: Print bastion session connection
     ansible.builtin.debug:
-      msg: "{{ instance_hostname }}"
+      msg: 'Bastion ssh: ssh -i server.key -o ProxyCommand="ssh -i server.key -W %h:%p -p 22 {{ bastion_session_details.session.bastion_id }}@host.bastion.{{ region }}.oci.oraclecloud.com" -p 22 opc@{{ instance_details.instance.primary_private_ip }}'

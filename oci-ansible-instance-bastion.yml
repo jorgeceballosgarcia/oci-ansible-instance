@@ -1,0 +1,37 @@
+- name: Create bastion
+  oci_bastion:
+    bastion_type: "STANDARD"
+    compartment_id: "{{ instance_compartment }}"
+    target_subnet_id: "{{ instance_subnet_id }}"
+    name: "{{ instance_name }}-bastion"
+    client_cidr_block_allow_list: [ "{{ quad_zero_route }}" ]
+  register: result
+
+- set_fact:
+    bastion_ocid: "{{ result.bastion.id }}"
+
+- name: Pause for 3 minutes to bastion agent on instance
+  ansible.builtin.pause:
+    minutes: 3
+
+- name: Create bastion ssh session
+  oci_bastion_session:
+    bastion_id: "{{ bastion_ocid }}"
+    target_resource_details:
+      target_resource_operating_system_user_name: "opc"
+      session_type: MANAGED_SSH
+      target_resource_id: "{{ instance_ocid }}"
+      target_resource_port: 22
+    key_details:
+      public_key_content: "{{ SSH_AUTHORIZED_KEYS }}"
+    key_type: PUB
+    session_ttl_in_seconds: 3600
+    display_name: "{{ instance_name }}-bastion-session-ssh"
+  register: result
+
+- set_fact:
+    bastion_session_details: "{{ result }}"
+
+- name: Print bastion session details
+  debug:
+    var: bastion_session_details

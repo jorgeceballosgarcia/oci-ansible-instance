@@ -6,17 +6,59 @@
     - "COMPARTMENT_OCID"
 
 - block:
-  - name: Generate a Private Key
-    openssl_privatekey:
-      path: "server.key"
-      type: RSA
-      size: 2048
-  - name: Generate a Public Key
-    openssl_publickey:
+  - name: Check pub key exists
+    stat:
       path: "server.key.pub"
-      privatekey_path: "server.key"
-      format: OpenSSH
-  when: "'PUBLIC_SSH_KEY' not in ansible_env"
+    register: result_pub
+  
+  - name: Check priv key exists
+    stat:
+      path: "server.key"
+    register: result_priv
+
+  - name: Check priv&pub
+    fail:
+      msg: "Keypar not exists. Please run generate-keys.sh"
+    when: (not result_pub.stat.exists) or (not result_priv.stat.exists)
+
+  # - name: Generate a Private Key
+  #   openssl_privatekey:
+  #     path: "server.key"
+  #     type: RSA
+  #     size: 2048
+  # - name: Generate a Public Key
+  #   openssl_publickey:
+  #     path: "server.key.pub"
+  #     privatekey_path: "server.key"
+  #     format: OpenSSH
+  # when: "'PUBLIC_SSH_KEY' not in ansible_env"
+
+- set_fact:
+    SSH_AUTHORIZED_KEYS: "{{ lookup('file',  'server.key.pub' ) }}"
+
+- name: Search AD on oci
+  block:
+  - name: List availability_domains
+    oci_identity_availability_domain_facts:
+      compartment_id: "{{ instance_compartment }}"
+    register: list_ads
+    when:
+      - "instance_ad is defined"
+      - "instance_ad ==''"
+
+  - name: Print
+    ansible.builtin.debug:
+      var: list_ads
+    when:
+      - "instance_ad is defined"
+      - "instance_ad ==''"
+  
+  - name: Set instance_ad
+    set_fact: 
+      instance_ad: "{{ list_ads.availability_domains[0].name }}"
+    when:
+      - "instance_ad is defined"
+      - "instance_ad ==''"
 
 - name: Search images on oci
   block:
