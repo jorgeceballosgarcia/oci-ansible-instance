@@ -8,10 +8,9 @@ instance_shape: "VM.Standard.E4.Flex"
 instance_memory_in_gbs: "16"
 instance_ocpus: "1"
 instance_os: "Oracle Linux"
-instance_os_build_filter: "^Oracle-Linux-8([\\.0-9-]+)$"
-# provide an "OL" image
+# You can provide an "OL" image or ansible search last image version of SO 
 # find OL image ocids per region here: https://docs.cloud.oracle.com/iaas/images/image/501c6e22-4dc6-4e99-b045-cae47aae343f/
-instance_image: "{{ lookup('env', 'IMAGE_OCID') }}"
+instance_image_ocid: "{{ lookup('env', 'IMAGE_OCID') }}"
 #ocid1.image.oc1.eu-paris-1.aaaaaaaamkinyu5l6foftfo6abgeajhtsgb22us3c2bbumlo273oeueqhona
 region: "eu-paris-1"
 

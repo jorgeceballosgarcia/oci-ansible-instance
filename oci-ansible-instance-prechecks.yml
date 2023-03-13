@@ -1,9 +1,10 @@
 - name: Check pre-requisites
   fail:
-    msg: "Environment variable {{item}} not set. Please declare an environment variable with an appropriate value for the sample to work."
+    msg: "Environment variable {{ item }} not set. Please declare an environment variable with an appropriate value for the sample to work."
   when: item not in ansible_env
-  with_items:
+  loop:
     - "COMPARTMENT_OCID"
+
 - block:
   - name: Generate a Private Key
     openssl_privatekey:
@@ -28,7 +29,21 @@
       #display_name: "{{instance_os_build_filter}}"
       operating_system: "{{ instance_os }}"
       operating_system_version: "8"
+      shape: "{{ instance_shape }}"
+      sort_by: "TIMECREATED"
+      sort_order: "DESC"
     register: list_images
+    when:
+      - "instance_image_ocid is defined"
+      - "instance_image_ocid ==''"
+  
+  - name: Set instance_image_ocid
+    set_fact: 
+      instance_image_ocid: "{{ list_images.images[0].id }}"
+    when:
+      - "instance_image_ocid is defined"
+      - "instance_image_ocid ==''"
+
   - name: debug
     debug:
-      msg: "{{ list_images }}"
+      var: instance_image_ocid
