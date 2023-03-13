@@ -1,39 +1,35 @@
+#tenancy vars
+instance_compartment: "{{ lookup('env', 'compartment_ocid') }}"
+#Example: ocid1.compartment.oc1..aaaaaaaatw53h3inxmpseokpj7ld7atkusnsc6pu3qlw46drotkbhvgpattq
+#You can provide the name of instance avaliability domains or ansible get the first one
+instance_ad: ""
+region: "eu-paris-1"
+
+#instance vars
 instance_name: "oci-instance-ansible"
 instance_hostname: "{{ instance_name }}"
-
-instance_ad: ""
-instance_compartment: "{{ lookup('env', 'COMPARTMENT_OCID') }}"
-#ocid1.compartment.oc1..aaaaaaaatw53h3inxmpseokpj7ld7atkusnsc6pu3qlw46drotkbhvgpattq
 instance_shape: "VM.Standard.E4.Flex"
 instance_memory_in_gbs: "16"
 instance_ocpus: "1"
 instance_os: "Oracle Linux"
 # You can provide an "OL" image or ansible search last image version of SO 
 # find OL image ocids per region here: https://docs.cloud.oracle.com/iaas/images/image/501c6e22-4dc6-4e99-b045-cae47aae343f/
-instance_image_ocid: "{{ lookup('env', 'IMAGE_OCID') }}"
-#ocid1.image.oc1.eu-paris-1.aaaaaaaamkinyu5l6foftfo6abgeajhtsgb22us3c2bbumlo273oeueqhona
-region: "eu-paris-1"
+instance_image_ocid: ""
+#Example: ocid1.image.oc1.eu-paris-1.aaaaaaaamkinyu5l6foftfo6abgeajhtsgb22us3c2bbumlo273oeueqhona
 
-# common networking definitions
+#Network vars
 quad_zero_route: "0.0.0.0/0"
 TCP_protocol: "6"
 SSH_port: "22"
-
 vcn_name: "{{ instance_name }}-vcn"
 vcn_cidr_block: "10.0.0.0/16"
 vcn_dns_label: "{{ instance_name }}"
-
 nat_name: "{{ instance_name }}-nat-gateway"
-
 route_table_name: "{{ instance_name }}-route-table-private"
-# route all internet access to our Internet Gateway
 route_table_rules:
     - cidr_block: "{{ quad_zero_route }}"
       network_entity_id: "{{ ng_id }}"
-
 subnet_cidr: "10.0.0.0/24"
 subnet_name: "{{ instance_name }}-subnet-private"
 subnet_dns_label: "{{ instance_name }}-subnet-private"
-
 securitylist_name: "{{ instance_name }}-security-list-private"
-

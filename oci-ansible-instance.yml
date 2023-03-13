@@ -44,6 +44,6 @@
 
   - import_tasks: oci-ansible-instance-bastion.yml
 
-  - name: Print bastion session connection
-    ansible.builtin.debug:
-      msg: 'Bastion ssh: ssh -i server.key -o ProxyCommand="ssh -i server.key -W %h:%p -p 22 {{ bastion_session_details.session.bastion_id }}@host.bastion.{{ region }}.oci.oraclecloud.com" -p 22 opc@{{ instance_details.instance.primary_private_ip }}'
+  - name: Create instance details file
+    template: src=./templates/write_down_instance_details.j2 dest=./instance_details.yml
+ 

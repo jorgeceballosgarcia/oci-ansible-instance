@@ -3,7 +3,7 @@
     msg: "Environment variable {{ item }} not set. Please declare an environment variable with an appropriate value for the sample to work."
   when: item not in ansible_env
   loop:
-    - "COMPARTMENT_OCID"
+    - "compartment_ocid"
 
 - block:
   - name: Check pub key exists
