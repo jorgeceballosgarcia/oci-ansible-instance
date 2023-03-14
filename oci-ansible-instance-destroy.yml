@@ -13,6 +13,7 @@
     oci_bastion_session:
       session_id: "{{ instancedetails[0].bastion_session_ocid }}"
       state: absent
+    ignore_errors: true
     when:
       - "instancedetails is defined"
 
