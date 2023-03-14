@@ -1,3 +1,10 @@
+- name: Launch a compute instance
+  hosts: localhost
+  gather_facts: true
+  collections:
+    - oracle.oci
+  tasks:
+
 - name: Include instance details.
   include_vars: ./instance_details.yml
 

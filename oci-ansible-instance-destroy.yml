@@ -1,0 +1,50 @@
+---
+- name: Destroy compute instance
+  hosts: localhost
+  gather_facts: true
+  collections:
+    - oracle.oci
+  tasks:
+
+- name: Include details instance
+  include_vars: ./instance_details.yml
+
+- name: Delete bastion ssh session
+  oci_bastion_session:
+    session_id: "{{ bastion_session_ocid }}"
+    state: absent
+
+- name: Delete bastion
+  oci_bastion:
+    bastion_id: "{{ bastion_ocid }}"
+    state: absent
+
+- name: Delete the instance
+  oci_compute_instance:
+    id: "{{ instance_ocid }}"
+    state: absent
+
+- name: Delete the subnet
+  oci_network_subnet:
+    id: "{{ subnet_ocid }}"
+    state: absent
+
+- name: Delete the security list
+  oci_network_security_list:
+    id: "{{ security_list_ocid }}"
+    state: absent
+
+- name: Delete the route table
+  oci_network_route_table:
+    id: "{{ route_table_ocid }}"
+    state: absent
+
+- name: Delete the Nat Gateway
+  oci_network_nat_gateway:
+    id: "{{ nat_gateway_ocid }}"
+    state: absent
+
+- name: Delete the VCN
+  oci_network_vcn:
+    vcn_id: "{{ vcn_ocid }}"
+    state: absent

@@ -86,7 +86,7 @@ sh generate-keys.sh
 To build simply execute the next command. 
 
 ```
-oci-ansible-instance.yml
+ansible-playbook oci-ansible-instance.yml
 ```
 
 ## Connect to compute instance
