@@ -97,12 +97,10 @@ The output of the ansible script will give the ssh full command so you only need
 ssh -i server.key -o ProxyCommand="ssh -i server.key -W %h:%p -p 22 ocid1.bastionsession.XXXX@host.bastion.XXXX.oci.oraclecloud.com" -p 22 opc@<instance_private_ip>
 ```
 
-## PENDING TO TEST
 The instance created is located in a vcn with a private subnet, and "Bastion Service" is used to connect to it.
 The life of the bastion service session is one hour, after that time it disappears. To be able to connect again, we will have to launch ```ansible-playbook oci-ansible-instance-bastion-session.yml``` and it will create a new bastion session.
 
 ## Clean
-## PENDING
 To delete the instance execute.
 ```
 ansible-playbook oci-ansible-instance-destroy.yml
@@ -116,4 +114,3 @@ If the instance is RUNNING the script STOP it and viceversa
 ```
 /bin/bash start-stop-instance.sh
 ```
-

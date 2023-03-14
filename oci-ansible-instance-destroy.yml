@@ -6,45 +6,59 @@
     - oracle.oci
   tasks:
 
-- name: Include details instance
-  include_vars: ./instance_details.yml
+  - name: Include details instance
+    include_vars: instance_details.yml
 
-- name: Delete bastion ssh session
-  oci_bastion_session:
-    session_id: "{{ bastion_session_ocid }}"
-    state: absent
+  - name: Delete bastion ssh session
+    oci_bastion_session:
+      session_id: "{{ instancedetails[0].bastion_session_ocid }}"
+      state: absent
+    when:
+      - "instancedetails is defined"
 
-- name: Delete bastion
-  oci_bastion:
-    bastion_id: "{{ bastion_ocid }}"
-    state: absent
+  - name: Delete bastion
+    oci_bastion:
+      bastion_id: "{{ instancedetails[0].bastion_ocid }}"
+      state: absent
+    when:
+      - "instancedetails is defined"
 
-- name: Delete the instance
-  oci_compute_instance:
-    id: "{{ instance_ocid }}"
-    state: absent
+  - name: Delete the instance
+    oci_compute_instance:
+      id: "{{ instancedetails[0].instance_ocid }}"
+      state: absent
+    when:
+      - "instancedetails is defined"
 
-- name: Delete the subnet
-  oci_network_subnet:
-    id: "{{ subnet_ocid }}"
-    state: absent
+  - name: Delete the subnet
+    oci_network_subnet:
+      id: "{{ instancedetails[0].subnet_ocid }}"
+      state: absent
 
-- name: Delete the security list
-  oci_network_security_list:
-    id: "{{ security_list_ocid }}"
-    state: absent
+  - name: Delete the security list
+    oci_network_security_list:
+      id: "{{ instancedetails[0].security_list_ocid }}"
+      state: absent
+    when:
+      - "instancedetails is defined"
 
-- name: Delete the route table
-  oci_network_route_table:
-    id: "{{ route_table_ocid }}"
-    state: absent
+  - name: Delete the route table
+    oci_network_route_table:
+      id: "{{ instancedetails[0].route_table_ocid }}"
+      state: absent
+    when:
+      - "instancedetails is defined"
 
-- name: Delete the Nat Gateway
-  oci_network_nat_gateway:
-    id: "{{ nat_gateway_ocid }}"
-    state: absent
+  - name: Delete the Nat Gateway
+    oci_network_nat_gateway:
+      id: "{{ instancedetails[0].nat_gateway_ocid }}"
+      state: absent
+    when:
+      - "instancedetails is defined"
 
-- name: Delete the VCN
-  oci_network_vcn:
-    vcn_id: "{{ vcn_ocid }}"
-    state: absent
+  - name: Delete the VCN
+    oci_network_vcn:
+      vcn_id: "{{ instancedetails[0].vcn_ocid }}"
+      state: absent
+    when:
+      - "instancedetails is defined"

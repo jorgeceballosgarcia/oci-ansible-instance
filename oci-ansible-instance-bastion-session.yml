@@ -1,37 +1,76 @@
-- name: Launch a compute instance
+- name: Create bastion ssh session
   hosts: localhost
   gather_facts: true
   collections:
     - oracle.oci
   tasks:
 
-- name: Include instance details.
-  include_vars: ./instance_details.yml
+    - name: Include instance details.
+      include_vars: instance_details.yml
 
-- name: Create bastion ssh session
-  oci_bastion_session:
-    bastion_id: "{{ bastion_ocid }}"
-    target_resource_details:
-      target_resource_operating_system_user_name: "opc"
-      session_type: MANAGED_SSH
-      target_resource_id: "{{ instance_ocid }}"
-      target_resource_port: 22
-    key_details:
-      public_key_content: "{{ SSH_AUTHORIZED_KEYS }}"
-    key_type: PUB
-    session_ttl_in_seconds: 3600
-    display_name: "{{ instance_name }}-bastion-session-ssh"
-  register: result
-  when:
-    - "instancedetails is defined"
+    - ansible.builtin.set_fact:
+        instance_name: "{{ instancedetails[0].bastion_ocid }}"
+    - ansible.builtin.set_fact:     
+        instance_ocid: "{{ instancedetails[0].instance_ocid }}"
+    - ansible.builtin.set_fact:
+        private_ip: "{{ instancedetails[0].private_ip }}"
+    - ansible.builtin.set_fact:
+        region: "{{ instancedetails[0].region }}"
+    - ansible.builtin.set_fact:
+        SSH_AUTHORIZED_KEYS: "{{ instancedetails[0].SSH_AUTHORIZED_KEYS }}"
+    - ansible.builtin.set_fact:
+        subnet_ocid: "{{ instancedetails[0].subnet_ocid }}"
+    - ansible.builtin.set_fact:
+        security_list_ocid: "{{ instancedetails[0].security_list_ocid }}"
+    - ansible.builtin.set_fact:
+        route_table_ocid: "{{ instancedetails[0].route_table_ocid }}"
+    - ansible.builtin.set_fact:
+        nat_gateway_ocid: "{{ instancedetails[0].nat_gateway_ocid }}"
+    - ansible.builtin.set_fact:
+        vcn_ocid: "{{ instancedetails[0].vcn_ocid }}"
+    - ansible.builtin.set_fact:
+        bastion_ocid: "{{ instancedetails[0].bastion_ocid }}"
+    - ansible.builtin.set_fact:
+        bastion_session_ocid: "{{ instancedetails[0].bastion_session_ocid }}"
 
-- set_fact:
-    bastion_session_details: "{{ result }}"
-  when:
-    - "instancedetails is defined"
+    - name: Create new bastion ssh session
+      vars:
+        date: "{{ lookup('pipe', 'date +%Y%m%d%H%M%S') }}"
+      block:
+        - name: Create bastion ssh session
+          oci_bastion_session:
+            bastion_id: "{{ instancedetails[0].bastion_ocid }}"
+            target_resource_details:
+              target_resource_operating_system_user_name: "opc"
+              session_type: MANAGED_SSH
+              target_resource_id: "{{ instancedetails[0].instance_ocid }}"
+              target_resource_port: 22
+            key_details:
+              public_key_content: "{{ instancedetails[0].SSH_AUTHORIZED_KEYS }}"
+            key_type: PUB
+            session_ttl_in_seconds: 3600
+            #display_name: "{{ date }}-bastion-session-ssh"
+          register: bastion_session_details
+          when:
+            - "instancedetails is defined"
 
-- name: Print bastion session connection
-  ansible.builtin.debug:
-    msg: 'Bastion ssh: ssh -i server.key -o ProxyCommand="ssh -i server.key -W %h:%p -p 22 {{ bastion_session_details.session.bastion_id }}@host.bastion.{{ region }}.oci.oraclecloud.com" -p 22 opc@{{ private_ip }}'
-  when:
-    - "instancedetails is defined"
+        - name: debug
+          ansible.builtin.debug:
+            var: bastion_session_details
+
+        - name: Create instance details file with new session
+          template: src=./templates/write_down_instance_details.j2 dest=./instance_details.yml      
+          when:
+            - "instancedetails is defined"
+
+        - name: Print new bastion session connection
+          ansible.builtin.debug:
+            msg: 'Bastion ssh: ssh -i server.key -o ProxyCommand="ssh -i server.key -W %h:%p -p 22 {{ bastion_session_details.session.id }}@host.bastion.{{ instancedetails[0].region }}.oci.oraclecloud.com" -p 22 opc@{{ instancedetails[0].private_ip }}'
+          when:
+            - "instancedetails is defined"
+      rescue:
+        - name: Print actual bastion session connection
+          ansible.builtin.debug:
+            msg: 'Bastion ssh: ssh -i server.key -o ProxyCommand="ssh -i server.key -W %h:%p -p 22 {{ instancedetails[0].bastion_session_ocid }}@host.bastion.{{ instancedetails[0].region }}.oci.oraclecloud.com" -p 22 opc@{{ instancedetails[0].private_ip }}'
+          when:
+            - "instancedetails is defined"

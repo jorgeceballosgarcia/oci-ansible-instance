@@ -39,6 +39,9 @@
   - set_fact:
       instance_ocid: "{{ result.instance.id }}"
 
+  - ansible.builtin.set_fact:
+      private_ip: "{{ instance_details.instance.primary_private_ip }}"
+
   - set_fact:
       instance_details: "{{ result }}"
 

@@ -1,13 +1,13 @@
 instancedetails:
     - instance_name: {{ instance_name }}
-    - instance_ocid: {{ instance_ocid }}
-    - private_ip: {{ instance_details.instance.primary_private_ip }}
-    - region: {{ region }}
-    - SSH_AUTHORIZED_KEYS: {{ SSH_AUTHORIZED_KEYS }}
-    - subnet_ocid: {{ instance_subnet_id }}
-    - security_list_ocid: {{ instance_security_list_ocid }}
-    - route_table_ocid: {{ rt_id }}
-    - nat_gateway_ocid: {{ ng_id }}
-    - vcn_ocid: {{ vcn_id }}
-    - bastion_ocid: {{ bastion_ocid }}
-    - bastion_session_ocid: {{ bastion_session_details.session.bastion_id }}
+      instance_ocid: {{ instance_ocid }}
+      private_ip: {{ private_ip }}
+      region: {{ region }}
+      SSH_AUTHORIZED_KEYS: {{ SSH_AUTHORIZED_KEYS }}
+      subnet_ocid: {{ subnet_ocid }}
+      security_list_ocid: {{ security_list_ocid }}
+      route_table_ocid: {{ route_table_ocid }}
+      nat_gateway_ocid: {{ nat_gateway_ocid }}
+      vcn_ocid: {{ vcn_ocid }}
+      bastion_ocid: {{ bastion_ocid }}
+      bastion_session_ocid: {{ bastion_session_details.session.id }}
